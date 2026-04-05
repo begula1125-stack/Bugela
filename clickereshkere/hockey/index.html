@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>ЭШКЕРЕ ХОККЕЙ 5х5</title>
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <style>
+        body { background: #000; color: #0f0; text-align: center; font-family: monospace; }
+        canvas { border: 2px solid #0f0; background: #111; display: block; margin: 10px auto; }
+        .controls { margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <h2>🏒 ХОККЕЙНЫЙ ТЕРМИНАЛ</h2>
+    <div class="controls">
+        <input type="text" id="peer-id-input" placeholder="ID друга">
+        <button id="connect-btn">ПОДКЛЮЧИТЬСЯ</button>
+        <p>Твой ID: <b id="my-id">...</b></p>
+    </div>
+    <canvas id="ice" width="600" height="400"></canvas>
+    
+    <script>
+        const canvas = document.getElementById('ice');
+        const ctx = canvas.getContext('2d');
+        const peer = new Peer();
+        let conn;
+
+        // Показываем твой ID
+        peer.on('open', id => document.getElementById('my-id').innerText = id);
+
+        // Ждем подключения друга
+        peer.on('connection', c => {
+            conn = c;
+            setupGame();
+        });
+
+        // Кнопка подключения
+        document.getElementById('connect-btn').onclick = () => {
+            const id = document.getElementById('peer-id-input').value;
+            conn = peer.connect(id);
+            setupGame();
+        };
+
+        function setupGame() {
+            conn.on('data', data => {
+                // Тут будем принимать координаты игрока и шайбы
+                draw(data.x, data.y);
+            });
+            alert("Связь установлена! ЭШКЕРЕ!");
+        }
+
+        function draw(x, y) {
+            ctx.clearRect(0, 0, 600, 400);
+            ctx.fillStyle = "#0f0";
+            ctx.fillRect(x, y, 20, 20); // Отрисовка игрока
+        }
+    </script>
+</body>
+</html>
